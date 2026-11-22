@@ -1,0 +1,21 @@
+# Dependencies & build output
+node_modules/
+web/node_modules/
+web/dist/
+.DS_Store
+Thumbs.db
+
+# Blender source files & references (not needed for web deployment)
+blender/
+reference/
+
+# FBX exports (web uses GLB only)
+export/**/*.fbx
+
+# Unused standalone textures (ingredient/prop textures are embedded in GLB)
+# Keep only the 6 baked soup texture sets loaded dynamically at runtime
+export/textures/*.png
+!export/textures/Mat_Soup_*.png
+
+# Unused large GLB not loaded by web app
+export/props/Shop_Building.glb

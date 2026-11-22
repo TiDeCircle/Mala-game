@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cozy Mala Maker — ร้านหม่าล่าชั่งขีด</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Prompt:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <canvas id="scene-canvas"></canvas>
+
+    <!-- Loading Overlay -->
+    <div id="loading-screen">
+      <div class="loading-card">
+        <div class="loading-emoji">🍲</div>
+        <h1>ร้านหม่าล่าชั่งขีด</h1>
+        <p class="loading-sub">กำลังจัดเตรียมวัตถุดิบลงตู้แช่...</p>
+        <div class="progress-track">
+          <div id="loading-bar" class="progress-fill"></div>
+        </div>
+        <div id="loading-label" class="loading-label">0%</div>
+      </div>
+    </div>
+
+    <!-- Top Header HUD -->
+    <header id="top-bar" class="hidden">
+      <div class="step-pills">
+        <span class="step-pill active" data-step="pick">1. เลือกของ</span>
+        <span class="step-pill" data-step="weigh">2. ชั่ง & ซุป</span>
+        <span class="step-pill" data-step="cook">3. ต้มหม้อ</span>
+        <span class="step-pill" data-step="dine">4. นั่งกิน</span>
+      </div>
+
+      <div class="top-actions">
+        <button id="btn-mute" class="icon-btn" title="เปิด/ปิดเสียง">🔊</button>
+      </div>
+    </header>
+
+    <!-- Hover Tooltip (Yellow Thai Street Tag) -->
+    <div id="tray-tooltip" class="tray-tooltip hidden">
+      <div id="tooltip-name" class="tooltip-name">ลูกชิ้นปลา</div>
+      <div id="tooltip-meta" class="tooltip-meta">~22 กรัม · คลิกเพื่อคีบ</div>
+    </div>
+
+    <!-- Stage 1: Picking HUD -->
+    <section id="stage-pick" class="stage-hud hidden">
+      <div class="category-bar" id="category-bar"></div>
+
+      <div class="bottom-dock">
+        <div class="dock-hint">
+          ✨ คลิกซ้ายค้างที่วัตถุดิบเพื่อคีบ · ลากมาเหนือชามใสแล้วปล่อย · เอาเมาส์จ่อขอบซ้าย-ขวาเพื่อเลื่อนดูตู้
+        </div>
+        <div class="dock-buttons">
+          <button id="btn-undo" class="btn secondary" disabled>↩ เอาชิ้นล่าสุดออก</button>
+          <button id="btn-clear" class="btn ghost" disabled>ล้างชาม</button>
+          <button id="btn-to-weigh" class="btn primary" disabled>
+            ไปชั่งน้ำหนัก →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stage 2: Weighing & Handwritten Paper Order Slip HUD -->
+    <section id="stage-weigh" class="stage-hud hidden">
+      <div class="clipboard-panel">
+        <div class="clipboard-clip"></div>
+
+        <div class="pen-toolbar">
+          <span class="pen-hint">✍️ ใช้เมาส์เขียนชื่อ / ขีดติ๊กในช่องได้เลย</span>
+          <div class="pen-colors">
+            <button class="pen-dot active" data-color="#1a4bb8" style="background:#1a4bb8" title="ปากกาน้ำเงิน"></button>
+            <button class="pen-dot" data-color="#c92a2a" style="background:#c92a2a" title="ปากกาแดง"></button>
+            <button class="pen-dot" data-color="#1e1c1a" style="background:#1e1c1a" title="ปากกาดำ"></button>
+            <button id="btn-clear-ink" class="pen-clear" title="ล้างรอยปากกา">🧹 ล้าง</button>
+          </div>
+        </div>
+
+        <div class="order-paper-wrap" id="order-paper-wrap">
+          <div class="order-paper-bg">
+            <div class="slip-header">
+              <div class="slip-title">🌶️ ใบสั่งอาหาร · หม่าล่าชั่งขีด</div>
+              <div class="slip-stamp">
+                <span id="weigh-grams">0 กรัม</span>
+                <strong id="weigh-price">฿0.-</strong>
+              </div>
+            </div>
+
+            <div class="slip-name-row">
+              <span>ชื่อลูกค้า:</span>
+              <span class="dotted-line"></span>
+            </div>
+
+            <div class="slip-section">
+              <div class="slip-sec-title">ประเภทซุป / เมนู (ขีด ✓ ในช่อง)</div>
+              <div id="broth-list" class="slip-check-list"></div>
+            </div>
+
+            <div class="slip-section">
+              <div class="slip-sec-title">ระดับความเผ็ด / ความชา</div>
+              <div id="spice-list" class="slip-check-list two-col"></div>
+            </div>
+
+            <div class="slip-section">
+              <div class="slip-sec-title">ตัวเลือกเพิ่มเติม</div>
+              <div class="slip-check-list two-col">
+                <div class="slip-option" data-extra="sauce_self"><span class="slip-box"></span>รับน้ำจิ้มปรุงเอง</div>
+                <div class="slip-option" data-extra="sauce_shop"><span class="slip-box"></span>น้ำจิ้มสูตรร้าน</div>
+                <div class="slip-option" data-extra="dine_in"><span class="slip-box"></span>ทานที่ร้าน</div>
+                <div class="slip-option" data-extra="take_away"><span class="slip-box"></span>กลับบ้าน</div>
+              </div>
+              <div class="slip-note-row">
+                <span>หมายเหตุ:</span>
+                <span class="dotted-line"></span>
+              </div>
+              <div class="slip-note-row">
+                <span class="dotted-line full"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Freehand Ballpoint Pen Drawing Canvas over the Paper -->
+          <canvas id="order-slip-canvas" class="order-slip-canvas"></canvas>
+        </div>
+
+        <div class="clipboard-footer">
+          <button id="btn-back-pick" class="btn secondary">← กลับไปคีบเพิ่ม</button>
+          <button id="btn-to-cook" class="btn primary">ส่งใบสั่งลงหม้อ! 🍲</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stage 3: Cooking HUD -->
+    <section id="stage-cook" class="stage-hud hidden">
+      <div class="cook-banner">
+        <div class="cook-spinner">🔥</div>
+        <div>
+          <div id="cook-status" class="cook-status">กำลังลวกวัตถุดิบในหม้อ...</div>
+          <div class="cook-track">
+            <div id="cook-bar" class="cook-fill"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stage 4: Dining HUD -->
+    <section id="stage-dine" class="stage-hud hidden">
+      <div class="dine-top-hint">
+        🖱️ ลากเพื่อหมุนดูชาม · ซูมได้ · คลิกที่ของในชามเพื่อคีบกิน!
+      </div>
+
+      <div class="dine-dock">
+        <div class="topping-bar">
+          <span class="topping-label">โรยเครื่องปรุง:</span>
+          <div id="topping-buttons" class="topping-buttons"></div>
+        </div>
+
+        <div class="dine-actions">
+          <button id="btn-lift-noodle" class="btn secondary hidden">🍜 คีบเส้นโชว์</button>
+          <button id="btn-photo" class="btn warm">📸 ถ่ายรูป & ใบเสร็จ</button>
+          <button id="btn-new-bowl" class="btn primary">🍲 ทำชามใหม่</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Photo & Receipt Modal -->
+    <div id="receipt-modal" class="modal hidden">
+      <div class="modal-backdrop" id="modal-backdrop"></div>
+      <div class="modal-card">
+        <button id="btn-close-modal" class="modal-close">✕</button>
+        <div class="receipt-preview">
+          <img id="receipt-img" alt="ชามหม่าล่าของคุณ" />
+          <div class="receipt-paper" id="receipt-paper"></div>
+        </div>
+        <div class="modal-actions">
+          <button id="btn-download-photo" class="btn primary">💾 บันทึกรูปชาม + ใบเสร็จ</button>
+          <button id="btn-modal-new" class="btn secondary">🍲 ทำชามใหม่</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
