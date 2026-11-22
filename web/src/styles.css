@@ -31,6 +31,7 @@ body {
 }
 
 #scene-canvas {
+  touch-action: none; /* let pointer events drive tongs, swipe-pan and orbit on touch screens */
   display: block;
   width: 100vw;
   height: 100vh;
@@ -889,4 +890,80 @@ body::after {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+}
+
+/* Quality toggle (HD / LITE) */
+.quality-btn {
+  width: auto;
+  min-width: 38px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-family: 'Kanit', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+/* Stage 1: hold-to-pan arrows along the chiller (mouse users can still edge-hover) */
+.pan-btn {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid var(--panel-border);
+  background: var(--panel);
+  color: var(--text);
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  touch-action: none;
+  z-index: 15;
+}
+
+.pan-btn.left {
+  left: max(12px, env(safe-area-inset-left));
+}
+
+.pan-btn.right {
+  right: max(12px, env(safe-area-inset-right));
+}
+
+.pan-btn:active {
+  background: var(--tag-yellow);
+  color: var(--tag-ink);
+}
+
+/* Phones */
+@media (max-width: 680px) {
+  /* Category pills drop below the top-right buttons instead of colliding with them */
+  .category-bar {
+    top: 60px;
+  }
+
+  .dock-hint,
+  .dine-top-hint {
+    white-space: normal;
+    text-align: center;
+    max-width: 92vw;
+    border-radius: 14px;
+  }
+
+  .dine-top-hint {
+    top: 60px;
+    font-size: 12px;
+  }
+
+  .dock-buttons {
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 8px 10px;
+  }
+
+  .bottom-dock,
+  .dine-dock {
+    bottom: max(12px, env(safe-area-inset-bottom));
+  }
 }

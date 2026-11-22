@@ -14,5 +14,28 @@ npm install
 npm run dev
 ```
 
-## Deploy ขึ้นเว็บ
-รองรับ **Vercel** ทันทีผ่าน `vercel.json` (Build Command: `cd web && npm install && npm run build`, Output Directory: `web/dist`)
+## โครงสร้างโค้ด (`web/src/`)
+| ไฟล์ | หน้าที่ |
+|---|---|
+| `main.js` | boot, สลับสเตจ, ส่งต่อ input, render loop |
+| `core/context.js` | state กลาง, DOM refs, renderer/scene/camera |
+| `core/quality.js` | โหมดภาพ HD / LITE |
+| `stations/pick.js` | ตู้แช่ 4 ชั้น, ที่คีบ, ชามใส, การลาก/ปัด |
+| `stations/weigh.js`, `stations/orderSlip.js` | ตาชั่งดิจิทัล, ใบสั่งเขียนมือ |
+| `stations/cook.js` | หม้อต้ม, ฟอง, ตะกร้อ |
+| `stations/dine.js` | ประกอบชามเสิร์ฟ, ท็อปปิ้ง, คีบเส้น, แตะกิน |
+| `receipt.js` | ใบเสร็จ + รูปสำหรับแชร์ |
+| `assetLoader.js`, `catalog.js` | โหลด GLB/texture, รายการวัตถุดิบ |
+
+## Asset pipeline
+`export/` คือไฟล์ต้นฉบับจาก Blender (ดู `AGENTS.md`) — เว็บไม่ได้ใช้ตรงๆ
+หลัง export โมเดลใหม่ทุกครั้งให้รัน:
+```bash
+cd web
+npm run optimize-assets   # export/ → web/public/ (texture เป็น WebP, ~37 MB → ~11 MB)
+```
+แล้ว commit `web/public/` ด้วย URL ของ asset มี `?v=<hash ของ public/>` ต่อท้ายอัตโนมัติ เบราว์เซอร์จึง cache ได้ยาวโดยไม่ค้างของเก่า
+
+## Deploy
+- **Self-host (ปัจจุบัน):** `cd web && npm run build` → pm2 app `mala-game` serve `web/dist` ที่ port 3060 → nginx `mala.madebytide.xyz` (ไม่ต้อง restart pm2 หลัง build)
+- **Vercel:** ใช้ `vercel.json` ได้ทันที (Build Command: `cd web && npm install && npm run build`, Output Directory: `web/dist`)

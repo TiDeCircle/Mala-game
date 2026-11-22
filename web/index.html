@@ -2,7 +2,9 @@
 <html lang="th">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#1c1411" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <title>Cozy Mala Maker — ร้านหม่าล่าชั่งขีด</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -38,6 +40,7 @@
       </div>
 
       <div class="top-actions">
+        <button id="btn-quality" class="icon-btn quality-btn" title="คุณภาพภาพ">HD</button>
         <button id="btn-mute" class="icon-btn" title="เปิด/ปิดเสียง">🔊</button>
       </div>
     </header>
@@ -52,9 +55,12 @@
     <section id="stage-pick" class="stage-hud hidden">
       <div class="category-bar" id="category-bar"></div>
 
+      <button id="btn-pan-left" class="pan-btn left" aria-label="เลื่อนตู้ไปทางซ้าย">‹</button>
+      <button id="btn-pan-right" class="pan-btn right" aria-label="เลื่อนตู้ไปทางขวา">›</button>
+
       <div class="bottom-dock">
-        <div class="dock-hint">
-          ✨ คลิกซ้ายค้างที่วัตถุดิบเพื่อคีบ · ลากมาเหนือชามใสแล้วปล่อย · เอาเมาส์จ่อขอบซ้าย-ขวาเพื่อเลื่อนดูตู้
+        <div class="dock-hint" id="dock-hint">
+          ✨ คลิกซ้ายค้างที่วัตถุดิบเพื่อคีบ · ลากมาเหนือชามใสแล้วปล่อย · เอาเมาส์จ่อขอบจอ หรือกดปุ่ม ‹ › เพื่อเลื่อนดูตู้
         </div>
         <div class="dock-buttons">
           <button id="btn-undo" class="btn secondary" disabled>↩ เอาชิ้นล่าสุดออก</button>
@@ -150,7 +156,7 @@
 
     <!-- Stage 4: Dining HUD -->
     <section id="stage-dine" class="stage-hud hidden">
-      <div class="dine-top-hint">
+      <div class="dine-top-hint" id="dine-hint">
         🖱️ ลากเพื่อหมุนดูชาม · ซูมได้ · คลิกที่ของในชามเพื่อคีบกิน!
       </div>
 
