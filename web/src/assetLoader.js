@@ -2,6 +2,9 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { GLB_PACKS } from './catalog.js';
 
+// Cache-busting version of public/ (see vite.config.js)
+const v = (url) => `${url}?v=${__ASSET_VERSION__}`;
+
 class AssetLibrary {
   constructor() {
     this.loader = new GLTFLoader();
@@ -20,12 +23,13 @@ class AssetLibrary {
       if (onProgress) onProgress(completed / total, label);
     };
 
-    // Load all 6 baked 1024x1024 PBR soup texture sets
-    const loadSoupSet = async (key, prefix) => {
+    // Load all 6 baked PBR soup texture sets (WebP, built by scripts/optimize-assets.mjs).
+    // Creamy has no normal map in the Blender bake, so don't request one (avoids a 404).
+    const loadSoupSet = async (key, prefix, { normal = true } = {}) => {
       const [map, normalMap, roughnessMap] = await Promise.all([
-        this.loadTex(`/textures/${prefix}_BaseColor.png`, true),
-        this.loadTex(`/textures/${prefix}_Normal.png`, false),
-        this.loadTex(`/textures/${prefix}_Roughness.png`, false),
+        this.loadTex(v(`/textures/${prefix}_BaseColor.webp`), true),
+        normal ? this.loadTex(v(`/textures/${prefix}_Normal.webp`), false) : null,
+        this.loadTex(v(`/textures/${prefix}_Roughness.webp`), false),
       ]);
       this.soupMaps[key] = { map, normalMap, roughnessMap };
       bump(`น้ำซุป (${key})`);
@@ -34,12 +38,12 @@ class AssetLibrary {
     await Promise.all([
       loadSoupSet('mala', 'Mat_Soup_Mala'),
       loadSoupSet('mala_clear', 'Mat_Soup_MalaClear'),
-      loadSoupSet('creamy', 'Mat_Soup_Creamy'),
+      loadSoupSet('creamy', 'Mat_Soup_Creamy', { normal: false }),
       loadSoupSet('black', 'Mat_Soup_Black'),
       loadSoupSet('tomato', 'Mat_Soup_Tomato'),
       loadSoupSet('milk', 'Mat_Soup_Milk'),
       ...entries.map(async ([key, url]) => {
-        const gltf = await this.loader.loadAsync(url);
+        const gltf = await this.loader.loadAsync(v(url));
         this.indexScene(gltf.scene);
         bump(key);
       }),
